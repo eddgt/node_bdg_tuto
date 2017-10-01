@@ -10,6 +10,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/tv', tvController.getTV);
 router.get('/tv/:id', tvController.getTVById);
-router.post('tv', tvController.addTV);
+router.post('/tv', tvController.addTV);
+router.put('/tv/:id', tvController.updateTV);
 
 module.exports = router;
