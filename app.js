@@ -4,11 +4,18 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var index = require('./routes/index');
+var mongoose  = require('mongoose');
 
 var app = express();
 
+var models = require('./models/tvshow')(app, mongoose);//inicializo mis modelos
+var index = require('./routes/index');
+
+
+mongoose.connect('mongodb://localhost/node_bdg_tuto', (err, res)=> {
+  if(err) throw err;
+  console.log('Connected to Database');
+});
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');

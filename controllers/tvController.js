@@ -1,84 +1,81 @@
+const mongoose = require('mongoose');
+const TVShow  = mongoose.model('TVShow');
+
 const controller = {};
-const tvShows = [
-    {
-        Id: 1,
-        titulo:'GOT',
-        anio: 2017,
-        pais: 'EEUU'
-
-    },
-    {
-        Id: 2,
-        titulo:'Fargo',
-        anio: 2017,
-        pais: 'EEUU'
-
-    },
-]
 /**
  * Obtener todos los tv shows
  */
 controller.getTV = (req, res, next)=> {
-    res.send(tvShows);
+    TVShow.find((err, tvshows)=>{
+        if(err)
+            return res.send(err);
+        
+        res.send(tvshows);
+    });
 }
 /**
  * Obtener tv show por ID
  */
 controller.getTVById = (req, res, next)=>{
-    let tvFind  = tvShows.find(x => x.Id === parseInt(req.params.id));
 
-    if(!tvFind){
-        return res.send({error: 'tv show no econtrado'});
-    }
-    res.send(tvFind);
+    TVShow.findById(req.params.id, (err, tvshow)=>{
+        if(err)
+            return res.send(err);
+        
+        res.send(tvshow);
+    })
 }
 /**
  * Agregar tv show
  */
 controller.addTV = (req, res, next)=>{
-    let id = tvShows.length + 1;
-    let newTVShow = buildTVShow(id, req.body);
+    
+    let newTVShow = new TVShow(buildTVShow(1, req.body));
 
-    tvShows.push(newTVShow);
-    res.send(newTVShow);
+    newTVShow.save((err, tvshow)=>{
+        if(err)
+            return res.send(err);
+        
+        res.send(tvshow);
+    });
 }
 /**
  * Actualizar tv show
  */
 controller.updateTV = (req, res, next)=>{
-    let tvShow = {error: 'tv show no econtrado'};
-    //Forma 1
 
-    let tvIndex  = tvShows.findIndex(x => x.Id === parseInt(req.params.id));
-    
-    if(tvIndex < 0){
-        return res.send(tvShow);
-    }
-    
-    tvShow = tvShows[tvIndex];
-    tvShow = buildTVShow(tvShow.Id, req.body);
-    tvShows[tvIndex] = tvShow;
+    TVShow.findById(req.params.id, (err, tvshow)=>{
+        if(err)
+            return res.send(err);
 
-    //forma 2
-    /*tvShows.map(x =>{
-        if(x.Id === parseInt(req.params.id)){
-            x = buildTVShow(x.Id, req.body);
-            tvShow = x;
-            return x;
-        }else{
-            return x;
-        }
-    });*/
-    
-    res.send(tvShow);
+        tvshow.titulo = req.body.titulo;
+        tvshow.anio = req.body.anio;
+        tvshow.pais = req.body.pais;
+        
+        tvshow.save((err, tvshow)=>{
+            if(err)
+                return res.send(err);
+            
+            res.send(tvshow);
+        });
+    })
 }
 /**
  * Eliminar tv show
  */
 controller.deleteTV = (req, res, next)=>{
-    let tvIndex = tvShows.findIndex(x => x.Id === parseInt(req.params.id));
-    
-    res.send(tvShows.splice(tvIndex, 1));
+    TVShow.findById(req.params.id, (err, tvshow)=>{
+        if(err)
+            return res.send(err);
+
+        tvshow.remove((err)=>{
+            if(err)
+                return res.send(err);
+            
+            res.status(200);
+            res.send(true);
+        });        
+    })
 }
 
 //---------------------------------------------------------------
